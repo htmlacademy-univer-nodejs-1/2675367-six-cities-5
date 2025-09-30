@@ -15,10 +15,10 @@ export class HelpCommand implements Command {
 Команды:
 `));
 
-    console.log(chalk.green(' --version:                   ') + '# выводит номер версии');
-    console.log(chalk.green(' --help:                      ') + '# печатает этот текст');
-    console.log(chalk.green(' --import <path>:             ') + '# импортирует данные из TSV');
-    console.log(chalk.green(' --generate <n> <path> <url>  ') + '# генерирует произвольное количество тестовых данных');
+    console.log(`${chalk.green(' --version:                   ')}# выводит номер версии`);
+    console.log(`${chalk.green(' --help:                      ')}# печатает этот текст`);
+    console.log(`${chalk.green(' --import <path>:             ')}# импортирует данные из TSV`);
+    console.log(`${chalk.green(' --generate <n> <path> <url>  ')}# генерирует произвольное количество тестовых данных`);
 
     console.log(chalk.yellow('\nПримеры использования:'));
     console.log(chalk.gray('  npm run ts src/main.ts -- --help'));

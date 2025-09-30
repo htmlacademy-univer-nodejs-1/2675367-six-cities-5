@@ -117,7 +117,7 @@ export class ImportCommand implements Command {
       console.log(chalk.blue(`Импорт данных из файла: ${filePath}`));
 
       const fileContent = readFileSync(filePath, 'utf8');
-      const lines = fileContent.split('\n').filter(line => line.trim());
+      const lines = fileContent.split('\n').filter((line) => line.trim());
 
       console.log(chalk.green(`Найдено ${lines.length} строк для обработки\n`));
 
@@ -142,7 +142,7 @@ export class ImportCommand implements Command {
         }
       }
 
-      console.log(chalk.blue.bold(`\nИмпорт завершен!`));
+      console.log(chalk.blue.bold('\nИмпорт завершен!'));
       console.log(chalk.green(`Успешно обработано: ${offers.length} предложений`));
       console.log(chalk.yellow('В реальном приложении данные будут сохранены в базу данных MongoDB.'));
 
