@@ -4,7 +4,7 @@ import axios from 'axios';
 import chalk from 'chalk';
 import { Command } from './index.js';
 import { MockServerOfferSeed } from '../../types/mock-data.js';
-import { Amenity, City, HousingType, UserType } from '../../types/index.js';
+import { City, HousingType, UserType } from '../../types/index.js';
 import { getRandomBoolean, getRandomFloat, getRandomInt, getRandomItem, getRandomItems } from '../../utils/random.js';
 
 function seedToTsv(seed: MockServerOfferSeed): string {
@@ -93,7 +93,7 @@ export class GenerateCommand implements Command {
               const base = seeds[getRandomInt(0, seeds.length - 1)];
               const offer = generateOfferFromSeed(base);
               const line = seedToTsv(offer);
-              if (!stream.write(line + '\n')) {
+              if (!stream.write(`${line}\n`)) {
                 await new Promise((r) => stream.once('drain', r));
               }
             }
