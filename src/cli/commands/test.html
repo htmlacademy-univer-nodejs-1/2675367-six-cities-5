@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Блок-схема алгоритма обработки обращений</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: white;
+      padding: 20px;
+      margin: 0;
+    }
+
+    #flowchart {
+      background: white;
+      padding: 40px;
+      display: inline-block;
+    }
+
+    .button-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    .node {
+      border: 2px solid #000;
+      padding: 15px 20px;
+      margin: 20px auto;
+      text-align: center;
+      background: white;
+      position: relative;
+    }
+
+    .start-end {
+      border-radius: 50px;
+      max-width: 300px;
+      font-weight: bold;
+    }
+
+    .process {
+      max-width: 400px;
+    }
+
+    .decision {
+      width: 300px;
+      height: 120px;
+      transform: rotate(45deg);
+      margin: 60px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .decision-text {
+      transform: rotate(-45deg);
+      white-space: nowrap;
+    }
+
+    .arrow {
+      text-align: center;
+      font-size: 24px;
+      margin: 10px 0;
+    }
+
+    .branch {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+    }
+
+    .branch-item {
+      flex: 1;
+      padding: 0 10px;
+    }
+
+    .label {
+      font-size: 14px;
+      color: #666;
+      font-style: italic;
+      margin: 5px 0;
+    }
+
+    .critical {
+      border-color: #ff0000;
+      border-width: 3px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      margin: 40px 0 20px 0;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+<div class="button-container">
+  <button onclick="downloadImage()">Сохранить как PNG</button>
+</div>
+
+<div id="flowchart">
+  <div class="section-title">БЛОК-СХЕМА АЛГОРИТМА ОБРАБОТКИ ОБРАЩЕНИЙ В ТЕХНИЧЕСКУЮ ПОДДЕРЖКУ</div>
+
+  <div class="node start-end">НАЧАЛО<br>Поступление обращения</div>
+  <div class="arrow">↓</div>
+
+  <div class="node decision">
+    <div class="decision-text">Канал<br>поступления?</div>
+  </div>
+
+  <div class="branch">
+    <div class="branch-item">
+      <div class="label">Email/Telegram/Веб</div>
+      <div class="arrow">↓</div>
+      <div class="node process">Автоматическая<br>регистрация</div>
+    </div>
+    <div class="branch-item">
+      <div class="label">Телефон</div>
+      <div class="arrow">↓</div>
+      <div class="node process">Ручная регистрация<br>оператором</div>
+    </div>
+  </div>
+
+  <div class="arrow">↓</div>
+  <div class="node decision">
+    <div class="decision-text">Клиент<br>в базе?</div>
+  </div>
+
+  <div class="branch">
+    <div class="branch-item">
+      <div class="label">Да</div>
+      <div class="arrow">↓</div>
+      <div class="node process">Связать с профилем</div>
+    </div>
+    <div class="branch-item">
+      <div class="label">Нет</div>
+      <div class="arrow">↓</div>
+      <div class="node process">Создать клиента</div>
+    </div>
+  </div>
+
+  <div class="arrow">↓</div>
+  <div class="node process">Сохранить заявку в БД<br>Статус: Новая</div>
+  <div class="arrow">↓</div>
+
+  <div class="node process">Отправить уведомление клиенту</div>
+  <div class="arrow">↓</div>
+
+  <div class="node process">Классификация:<br>категория, продукт</div>
+  <div class="arrow">↓</div>
+
+  <div class="node process">Определение приоритета<br>Расчёт дедлайнов SLA</div>
+  <div class="arrow">↓</div>
+
+  <div class="node decision">
+    <div class="decision-text">Способ<br>назначения?</div>
+  </div>
+
+  <div class="branch">
+    <div class="branch-item">
+      <div class="label">Автоматически</div>
+      <div class="arrow">↓</div>
+      <div class="node process">Система выбирает<br>по загрузке</div>
+    </div>
+    <div class="branch-item">
+      <div class="label">Вручную</div>
+      <div class="arrow">↓</div>
+      <div class="node process">Оператор назначает</div>
+    </div>
+  </div>
+
+  <div class="arrow">↓</div>
+  <div class="node process">Статус: Назначена<br>Уведомление специалисту</div>
+  <div class="arrow">↓</div>
+
+  <div class="node process">Специалист изучает заявку</div>
+  <div class="arrow">↓</div>
+
+  <div class="node process">Статус: В работе<br>Фиксация времени реакции</div>
+  <div class="arrow">↓</div>
+
+  <div class="node decision">
+    <div class="decision-text">Нужна доп.<br>информация?</div>
+  </div>
+
+  <div class="branch">
+    <div class="branch-item">
+      <div class="label">Да</div>
+      <div class="arrow">↓</div>
+      <div class="node process">Запрос у клиента<br>Статус: Ожидает</div>
+    </div>
+    <div class="branch-item">
+      <div class="label">Нет</div>
+      <div class="arrow">↓</div>
+      <div class="node process">Диагностика проблемы</div>
+    </div>
+  </div>
+
+  <div class="arrow">↓</div>
+  <div class="node decision">
+    <div class="decision-text">Может решить<br>самостоятельно?</div>
+  </div>
+
+  <div class="branch">
+    <div class="branch-item">
+      <div class="label">Да</div>
+      <div class="arrow">↓</div>
+      <div class="node process">Решение проблемы</div>
+    </div>
+    <div class="branch-item">
+      <div class="label">Нет</div>
+      <div class="arrow">↓</div>
+      <div class="node process">Эскалация на<br>следующую линию</div>
+    </div>
+  </div>
+
+  <div class="arrow">↓</div>
+  <div class="node process">Документирование решения</div>
+  <div class="arrow">↓</div>
+
+  <div class="node process">Статус: Решена<br>Уведомление клиенту</div>
+  <div class="arrow">↓</div>
+
+  <div class="node decision">
+    <div class="decision-text">Проблема<br>решена?</div>
+  </div>
+
+  <div class="branch">
+    <div class="branch-item">
+      <div class="label">Да</div>
+      <div class="arrow">↓</div>
+      <div class="node process">Статус: Закрыта</div>
+    </div>
+    <div class="branch-item">
+      <div class="label">Нет</div>
+      <div class="arrow">↓</div>
+      <div class="node process">Возврат в работу</div>
+    </div>
+  </div>
+
+  <div class="arrow">↓</div>
+  <div class="node decision">
+    <div class="decision-text">SLA<br>соблюдён?</div>
+  </div>
+
+  <div class="branch">
+    <div class="branch-item">
+      <div class="label">Да</div>
+      <div class="arrow">↓</div>
+      <div class="node process">Сохранение метрик</div>
+    </div>
+    <div class="branch-item">
+      <div class="label">Нет</div>
+      <div class="arrow">↓</div>
+      <div class="node process critical">Флаг нарушения SLA<br>Уведомление руководителю</div>
+    </div>
+  </div>
+
+  <div class="arrow">↓</div>
+  <div class="node process">Запрос оценки качества</div>
+  <div class="arrow">↓</div>
+
+  <div class="node process">Обновление статистики<br>и отчётности</div>
+  <div class="arrow">↓</div>
+
+  <div class="node decision">
+    <div class="decision-text">Добавить в<br>базу знаний?</div>
+  </div>
+
+  <div class="branch">
+    <div class="branch-item">
+      <div class="label">Да</div>
+      <div class="arrow">↓</div>
+      <div class="node process">Создание статьи</div>
+    </div>
+    <div class="branch-item">
+      <div class="label">Нет</div>
+    </div>
+  </div>
+
+  <div class="arrow">↓</div>
+  <div class="node start-end">КОНЕЦ</div>
+
+  <div class="section-title" style="margin-top: 60px;">ПАРАЛЛЕЛЬНЫЙ ПРОЦЕСС: МОНИТОРИНГ SLA</div>
+
+  <div class="node process">Постоянный мониторинг времени</div>
+  <div class="arrow">↓</div>
+
+  <div class="node decision">
+    <div class="decision-text">Приближение<br>к дедлайну?</div>
+  </div>
+
+  <div class="branch">
+    <div class="branch-item">
+      <div class="label">30% до срока</div>
+      <div class="arrow">↓</div>
+      <div class="node process">Предупреждение<br>исполнителю</div>
+    </div>
+    <div class="branch-item">
+      <div class="label">Превышен</div>
+      <div class="arrow">↓</div>
+      <div class="node process critical">Уведомление<br>руководителю</div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 40px; font-size: 14px; color: #666;">
+    Рисунок 14 - Блок-схема алгоритма обработки обращений в техническую поддержку
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+  function downloadImage() {
+    const button = document.querySelector('.button-container');
+    button.style.display = 'none';
+
+    html2canvas(document.getElementById('flowchart'), {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      logging: false
+    }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = 'блок-схема-алгоритма-обработки-обращений.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+
+      button.style.display = 'block';
+    });
+  }
+</script>
+</body>
+</html>
