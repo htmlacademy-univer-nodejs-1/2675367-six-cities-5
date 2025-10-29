@@ -127,7 +127,7 @@ export class ImportCommand implements Command {
         if (!trimmed) {
           continue;
         }
-        
+
         try {
           const mockOffer = this.parseTsvLine(trimmed);
           const rentalOffer = this.convertMockToRentalOffer(mockOffer);

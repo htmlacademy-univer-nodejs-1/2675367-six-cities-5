@@ -8,7 +8,7 @@ export function getRandomInt(min: number, max: number): number {
 /**
  * Get random float from min to max
  */
-export function getRandomFloat(min: number, max: number, decimals: number = 1): number {
+export function getRandomFloat(min: number, max: number, decimals = 1): number {
   const random = Math.random() * (max - min) + min;
   return parseFloat(random.toFixed(decimals));
 }

@@ -1,6 +1,5 @@
 import { createWriteStream } from 'node:fs';
 import { resolve } from 'node:path';
-import readline from 'node:readline';
 import axios from 'axios';
 import chalk from 'chalk';
 import { Command } from './index.js';
@@ -53,19 +52,19 @@ export class GenerateCommand implements Command {
       console.log(chalk.blue(`Генерация ${count} записей в файл: ${resolvedPath}`));
 
       const writeStream = createWriteStream(resolvedPath, { encoding: 'utf8' });
-      
+
       // Generate data line by line
       for (let i = 0; i < count; i++) {
         const tsvLine = this.generateTsvLine(mockData);
-        writeStream.write(tsvLine + '\n');
-        
+        writeStream.write(`${tsvLine}\n`);
+
         if ((i + 1) % 100 === 0) {
           console.log(chalk.gray(`Обработано: ${i + 1}/${count}`));
         }
       }
 
       writeStream.end();
-      
+
       writeStream.on('finish', () => {
         console.log(chalk.green.bold(`\n✓ Успешно сгенерировано ${count} записей!`));
         console.log(chalk.yellow(`Файл сохранён: ${resolvedPath}`));
@@ -102,30 +101,30 @@ export class GenerateCommand implements Command {
   private generateTsvLine(mockData: MockData): string {
     const city = getRandomItem(mockData.cities);
     const coordinates = CITIES_COORDINATES[city];
-    
+
     const title = getRandomItem(mockData.titles);
     const description = getRandomItem(mockData.descriptions);
     const previewImage = getRandomItem(mockData.previewImages);
-    
+
     // Generate 6 random images
     const images = Array.from({ length: 6 }, () => getRandomItem(mockData.images));
-    
+
     const isPremium = Math.random() > 0.7;
     const rating = getRandomFloat(1, 5, 1);
     const housingType = getRandomItem(mockData.housingTypes);
     const roomCount = getRandomInt(1, 5);
     const guestCount = getRandomInt(1, 10);
     const price = getRandomInt(100, 1000);
-    
+
     // Random amenities (1-5)
     const amenityCount = getRandomInt(1, 5);
     const amenities = getRandomItems(mockData.amenities, amenityCount);
-    
+
     const authorName = getRandomItem(mockData.authorNames);
     const authorEmail = getRandomItem(mockData.authorEmails);
     const authorAvatar = getRandomItem(mockData.authorAvatars);
     const userType = getRandomItem(mockData.userTypes);
-    
+
     const latitude = getRandomFloat(coordinates.latitude - 0.1, coordinates.latitude + 0.1, 6);
     const longitude = getRandomFloat(coordinates.longitude - 0.1, coordinates.longitude + 0.1, 6);
 
