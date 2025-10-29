@@ -1,5 +1,6 @@
-import { readFileSync, existsSync } from 'node:fs';
+import { existsSync, createReadStream } from 'node:fs';
 import { resolve } from 'node:path';
+import readline from 'node:readline';
 import chalk from 'chalk';
 import { Command } from './index.js';
 import { MockOffer, RentalOffer, User, City, HousingType, Amenity, UserType } from '../../types/index.js';
@@ -116,34 +117,42 @@ export class ImportCommand implements Command {
     try {
       console.log(chalk.blue(`Импорт данных из файла: ${filePath}`));
 
-      const fileContent = readFileSync(filePath, 'utf8');
-      const lines = fileContent.split('\n').filter((line) => line.trim());
+      const readStream = createReadStream(filePath, { encoding: 'utf8' });
+      const rl = readline.createInterface({ input: readStream, crlfDelay: Infinity });
 
-      console.log(chalk.green(`Найдено ${lines.length} строк для обработки\n`));
+      let processed = 0;
 
-      const offers: RentalOffer[] = [];
-
-      for (let i = 0; i < lines.length; i++) {
+      for await (const line of rl) {
+        const trimmed = line.trim();
+        if (!trimmed) {
+          continue;
+        }
+        
         try {
-          const mockOffer = this.parseTsvLine(lines[i]);
+          const mockOffer = this.parseTsvLine(trimmed);
           const rentalOffer = this.convertMockToRentalOffer(mockOffer);
-          offers.push(rentalOffer);
 
-          console.log(chalk.green(`✓ Обработано предложение ${i + 1}:`));
-          console.log(chalk.gray(`  Название: ${rentalOffer.title}`));
-          console.log(chalk.gray(`  Город: ${rentalOffer.city}`));
-          console.log(chalk.gray(`  Тип: ${rentalOffer.housingType}`));
-          console.log(chalk.gray(`  Цена: €${rentalOffer.price}`));
-          console.log(chalk.gray(`  Автор: ${rentalOffer.author.name} (${rentalOffer.author.email})`));
-          console.log();
+          processed += 1;
 
+          // Log progress for every 100th record
+          if (processed % 100 === 0) {
+            console.log(chalk.gray(`Обработано: ${processed} предложений...`));
+          } else {
+            console.log(chalk.green(`✓ Обработано предложение ${processed}:`));
+            console.log(chalk.gray(`  Название: ${rentalOffer.title}`));
+            console.log(chalk.gray(`  Город: ${rentalOffer.city}`));
+            console.log(chalk.gray(`  Тип: ${rentalOffer.housingType}`));
+            console.log(chalk.gray(`  Цена: €${rentalOffer.price}`));
+            console.log(chalk.gray(`  Автор: ${rentalOffer.author.name} (${rentalOffer.author.email})`));
+            console.log();
+          }
         } catch (error) {
-          console.error(chalk.red(`✗ Ошибка при обработке строки ${i + 1}:`), error);
+          console.error(chalk.red(`✗ Ошибка при обработке строки ${processed + 1}:`), error);
         }
       }
 
       console.log(chalk.blue.bold('\nИмпорт завершен!'));
-      console.log(chalk.green(`Успешно обработано: ${offers.length} предложений`));
+      console.log(chalk.green(`Успешно обработано: ${processed} предложений`));
       console.log(chalk.yellow('В реальном приложении данные будут сохранены в базу данных MongoDB.'));
 
     } catch (error) {

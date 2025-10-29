@@ -1,4 +1,4 @@
-import { Command, HelpCommand, VersionCommand, ImportCommand } from './commands/index.js';
+import { Command, HelpCommand, VersionCommand, ImportCommand, GenerateCommand } from './commands/index.js';
 
 export class CLIApplication {
   private readonly commandNameToCommand: Map<string, Command> = new Map();
@@ -11,7 +11,8 @@ export class CLIApplication {
     const commands: Command[] = [
       new HelpCommand(),
       new VersionCommand(),
-      new ImportCommand()
+      new ImportCommand(),
+      new GenerateCommand()
     ];
 
     for (const command of commands) {
