@@ -19,9 +19,21 @@ export const configSchema = convict({
   db: {
     host: {
       doc: 'Database host address',
-      format: 'ipaddress',
+      format: String,
       env: 'DB_HOST',
       default: '127.0.0.1'
+    },
+    port: {
+      doc: 'Database port',
+      format: 'port',
+      env: 'DB_PORT',
+      default: 27017
+    },
+    name: {
+      doc: 'Database name',
+      format: String,
+      env: 'DB_NAME',
+      default: 'six-cities'
     }
   },
   security: {
