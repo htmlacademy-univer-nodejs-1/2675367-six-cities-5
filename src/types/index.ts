@@ -1,22 +1,25 @@
+export enum UserType {
+  Ordinary = 'ordinary',
+  Pro = 'pro'
+}
+
 export type City = 'Paris' | 'Cologne' | 'Brussels' | 'Amsterdam' | 'Hamburg' | 'Dusseldorf';
 
 export type HousingType = 'apartment' | 'house' | 'room' | 'hotel';
 
-export type UserType = 'regular' | 'pro';
-
 export type Amenity = 'Breakfast' | 'Air conditioning' | 'Laptop friendly workspace' | 'Baby seat' | 'Washer' | 'Towels' | 'Fridge';
-
-export interface Coordinates {
-  latitude: number;
-  longitude: number;
-}
 
 export interface User {
   name: string;
   email: string;
-  avatar?: string;
+  avatar: string;
   password: string;
   userType: UserType;
+}
+
+export interface Coordinates {
+  latitude: number;
+  longitude: number;
 }
 
 export interface RentalOffer {
@@ -25,7 +28,7 @@ export interface RentalOffer {
   publicationDate: Date;
   city: City;
   previewImage: string;
-  images: [string, string, string, string, string, string]; // Always 6 photos
+  images: [string, string, string, string, string, string];
   isPremium: boolean;
   isFavorite: boolean;
   rating: number;
@@ -37,13 +40,6 @@ export interface RentalOffer {
   author: User;
   commentCount: number;
   coordinates: Coordinates;
-}
-
-export interface Comment {
-  text: string;
-  publicationDate: Date;
-  rating: number;
-  author: User;
 }
 
 export interface MockOffer {
@@ -67,11 +63,3 @@ export interface MockOffer {
   longitude: number;
 }
 
-export const CITIES_COORDINATES: Record<City, Coordinates> = {
-  'Paris': { latitude: 48.85661, longitude: 2.351499 },
-  'Cologne': { latitude: 50.938361, longitude: 6.959974 },
-  'Brussels': { latitude: 50.846557, longitude: 4.351697 },
-  'Amsterdam': { latitude: 52.370216, longitude: 4.895168 },
-  'Hamburg': { latitude: 53.550341, longitude: 10.000654 },
-  'Dusseldorf': { latitude: 51.225402, longitude: 6.776314 }
-};

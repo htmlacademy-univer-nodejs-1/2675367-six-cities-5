@@ -1,3 +1,4 @@
+
 import 'reflect-metadata';
 import { Container } from 'inversify';
 import { Application } from './app/index.js';
@@ -25,3 +26,4 @@ async function bootstrap() {
 }
 
 bootstrap();
+

@@ -88,6 +88,7 @@ export class ImportCommand implements Command {
       console.log(chalk.blue(`Импорт данных из файла: ${filePath}`));
       console.log(chalk.blue(`Подключение к базе данных: ${uri}`));
 
+
       await dbClient.connect(uri);
 
       const userService = new UserService();
@@ -104,6 +105,8 @@ export class ImportCommand implements Command {
         if (!trimmed) {
           continue;
         }
+
+
 
         try {
           const mockOffer = this.parseTsvLine(trimmed);
@@ -156,6 +159,7 @@ export class ImportCommand implements Command {
       }
 
       console.log(chalk.blue.bold('\nИмпорт завершен!'));
+
       console.log(chalk.green(`Обработано записей: ${processed}`));
       console.log(chalk.green(`Сохранено в базу данных: ${saved}`));
 
@@ -166,3 +170,4 @@ export class ImportCommand implements Command {
     }
   }
 }
+

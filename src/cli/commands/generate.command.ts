@@ -1,3 +1,4 @@
+
 import { createWriteStream } from 'node:fs';
 import { resolve } from 'node:path';
 import axios from 'axios';
@@ -26,6 +27,7 @@ export class GenerateCommand implements Command {
   }
 
   async execute(params: string[]): Promise<void> {
+
     if (params.length !== 3) {
       console.error(chalk.red('Ошибка: Неверное количество параметров.'));
       console.log(chalk.yellow('Использование: --generate <n> <path> <url>'));
