@@ -1,0 +1,51 @@
+import express, { Express, Router } from 'express';
+import { Config } from '../../config/config.js';
+import { IExceptionFilter } from '../exception-filter/index.js';
+
+export class Application {
+  private expressApp: Express;
+
+  constructor(private readonly exceptionFilter: IExceptionFilter) {
+    this.expressApp = express();
+  }
+
+  public initRoutes(routers: { path: string; router: Router }[]): void {
+    for (const { path, router } of routers) {
+      this.expressApp.use(path, router);
+    }
+  }
+
+  public initMiddleware(): void {
+    this.expressApp.use(express.json());
+  }
+
+  public registerMiddleware(middleware: express.RequestHandler): void {
+    this.expressApp.use(middleware);
+  }
+
+  public registerRoutes(router: express.Router): void {
+    this.expressApp.use(router);
+  }
+
+  public initExceptionFilters(): void {
+    this.expressApp.use(
+      (error: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+        this.exceptionFilter.catch(error, req, res, next);
+      }
+    );
+  }
+
+  public async init(routers?: { path: string; router: Router }[]): Promise<void> {
+    this.initMiddleware();
+    if (routers) {
+      this.initRoutes(routers);
+    }
+    this.initExceptionFilters();
+
+    const port = parseInt(Config.PORT, 10);
+    this.expressApp.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+  }
+}
+
