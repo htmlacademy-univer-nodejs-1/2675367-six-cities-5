@@ -1,0 +1,1000 @@
+openapi: 3.0.3
+info:
+  title: Six Cities API
+  description: |
+    REST API для сервиса «Шесть городов» — сервиса для путешественников, не желающих переплачивать за аренду жилья.
+    Выбирайте один из шести популярных городов для путешествий и получайте актуальный список предложений по аренде.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@six-cities.com
+
+servers:
+  - url: http://localhost:3000/api
+    description: Локальный сервер разработки
+
+tags:
+  - name: Offers
+    description: Операции с предложениями по аренде
+  - name: Comments
+    description: Операции с комментариями
+  - name: Users
+    description: Операции с пользователями
+  - name: Favorites
+    description: Операции с избранными предложениями
+
+paths:
+  /offers:
+    get:
+      tags:
+        - Offers
+      summary: Получить список предложений по аренде
+      description: |
+        Возвращает список предложений по аренде. По умолчанию возвращается не более 60 предложений.
+        Предложения отсортированы по дате публикации (по убыванию).
+        Доступно для анонимных и авторизованных клиентов.
+      parameters:
+        - name: limit
+          in: query
+          description: Максимальное количество предложений для возврата
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 60
+      responses:
+        '200':
+          description: Список предложений успешно получен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OfferListItem'
+                  total:
+                    type: integer
+                    description: Общее количество предложений
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Offers
+      summary: Создать новое предложение
+      description: |
+        Создает новое предложение по аренде. Доступно только для авторизованных клиентов.
+        Данные проходят валидацию перед созданием.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOfferRequest'
+      responses:
+        '201':
+          description: Предложение успешно создано
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/OfferDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /offers/{offerId}:
+    get:
+      tags:
+        - Offers
+      summary: Получить детальную информацию о предложении
+      description: |
+        Возвращает полную информацию о предложении по аренде, включая все поля.
+        Доступно для анонимных и авторизованных клиентов.
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          description: Идентификатор предложения
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Информация о предложении успешно получена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/OfferDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      tags:
+        - Offers
+      summary: Редактировать предложение
+      description: |
+        Редактирует существующее предложение по аренде.
+        Клиент может редактировать только свои предложения.
+        Доступно только для авторизованных клиентов.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          description: Идентификатор предложения
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOfferRequest'
+      responses:
+        '200':
+          description: Предложение успешно обновлено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/OfferDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags:
+        - Offers
+      summary: Удалить предложение
+      description: |
+        Удаляет предложение по аренде. При удалении предложения комментарии к нему удаляются автоматически.
+        Клиент может удалять только свои предложения.
+        Доступно только для авторизованных клиентов.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          description: Идентификатор предложения
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Предложение успешно удалено
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /offers/{offerId}/comments:
+    get:
+      tags:
+        - Comments
+      summary: Получить список комментариев для предложения
+      description: |
+        Возвращает список комментариев для определенного предложения.
+        Сервис возвращает не более 50 последних комментариев, отсортированных по дате публикации (по убыванию).
+        Доступно для анонимных и авторизованных клиентов.
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          description: Идентификатор предложения
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список комментариев успешно получен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Comment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Comments
+      summary: Добавить комментарий к предложению
+      description: |
+        Добавляет новый комментарий к предложению по аренде.
+        Доступно только для авторизованных клиентов.
+        Данные проходят валидацию перед добавлением.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          description: Идентификатор предложения
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommentRequest'
+      responses:
+        '201':
+          description: Комментарий успешно добавлен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Comment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /offers/premium/{city}:
+    get:
+      tags:
+        - Offers
+      summary: Получить премиальные предложения для города
+      description: |
+        Возвращает список премиальных предложений для определенного города.
+        Сервис возвращает не более 3 предложений с флагом «Premium», отсортированных по дате публикации (по убыванию).
+        Доступно для анонимных и авторизованных клиентов.
+      parameters:
+        - name: city
+          in: path
+          required: true
+          description: Название города
+          schema:
+            $ref: '#/components/schemas/City'
+      responses:
+        '200':
+          description: Список премиальных предложений успешно получен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OfferListItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/register:
+    post:
+      tags:
+        - Users
+      summary: Создать нового пользователя
+      description: |
+        Создает нового пользователя в системе.
+        Email создаваемого пользователя должен быть уникальным.
+        Доступно только для анонимных клиентов.
+        Пароль хранится в базе данных в виде хеша.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: Пользователь успешно создан
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Пользователь с таким email уже существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/login:
+    post:
+      tags:
+        - Users
+      summary: Вход в закрытую часть приложения
+      description: |
+        Выполняет аутентификацию пользователя и возвращает токен для доступа к закрытым ресурсам.
+        Токен передается в заголовках для последующих запросов.
+        Доступно для анонимных клиентов.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Успешная аутентификация
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Токен для доступа к закрытым ресурсам
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Неверный логин или пароль
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    get:
+      tags:
+        - Users
+      summary: Проверить состояние пользователя
+      description: |
+        Проверяет состояние клиента — авторизован или нет.
+        Проверка производится на основании токена в заголовках.
+        Доступно только для авторизованных клиентов.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Пользователь авторизован
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/logout:
+    delete:
+      tags:
+        - Users
+      summary: Выход из закрытой части приложения
+      description: |
+        Завершает пользовательский сеанс (если авторизация выполняется на основе сессий).
+        Доступно только для авторизованных клиентов.
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Сеанс успешно завершен
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/favorites:
+    get:
+      tags:
+        - Favorites
+      summary: Получить список избранных предложений
+      description: |
+        Возвращает все предложения, добавленные в избранное текущим пользователем.
+        Доступно только для авторизованных клиентов.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список избранных предложений успешно получен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OfferListItem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/favorites/{offerId}:
+    post:
+      tags:
+        - Favorites
+      summary: Добавить предложение в избранное
+      description: |
+        Добавляет предложение в список избранных предложений текущего пользователя.
+        Доступно только для авторизованных клиентов.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          description: Идентификатор предложения
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Предложение успешно добавлено в избранное
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Предложение добавлено в избранное
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags:
+        - Favorites
+      summary: Удалить предложение из избранного
+      description: |
+        Удаляет предложение из списка избранных предложений текущего пользователя.
+        Доступно только для авторизованных клиентов.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          description: Идентификатор предложения
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Предложение успешно удалено из избранного
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Токен доступа для авторизованных запросов
+
+  schemas:
+    City:
+      type: string
+      enum:
+        - Paris
+        - Cologne
+        - Brussels
+        - Amsterdam
+        - Hamburg
+        - Dusseldorf
+      description: Название города
+
+    CityCoordinates:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: float
+          description: Широта
+        longitude:
+          type: number
+          format: float
+          description: Долгота
+      required:
+        - latitude
+        - longitude
+
+    HousingType:
+      type: string
+      enum:
+        - apartment
+        - house
+        - room
+        - hotel
+      description: Тип жилья
+
+    Amenity:
+      type: string
+      enum:
+        - Breakfast
+        - 'Air conditioning'
+        - 'Laptop friendly workspace'
+        - 'Baby seat'
+        - Washer
+        - Towels
+        - Fridge
+      description: Удобство
+
+    UserType:
+      type: string
+      enum:
+        - ordinary
+        - pro
+      description: Тип пользователя
+
+    User:
+      type: object
+      description: Информация о пользователе (без конфиденциальных данных)
+      properties:
+        id:
+          type: string
+          description: Идентификатор пользователя
+        name:
+          type: string
+          minLength: 1
+          maxLength: 15
+          description: Имя пользователя
+        email:
+          type: string
+          format: email
+          description: Электронная почта
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+          description: Ссылка на аватар пользователя
+        userType:
+          $ref: '#/components/schemas/UserType'
+      required:
+        - id
+        - name
+        - email
+        - userType
+
+    CreateUserRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+        - userType
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 15
+          description: Имя пользователя
+        email:
+          type: string
+          format: email
+          description: Электронная почта
+        avatar:
+          type: string
+          format: uri
+          description: Ссылка на аватар пользователя (необязательно)
+        password:
+          type: string
+          minLength: 6
+          maxLength: 12
+          format: password
+          description: Пароль
+        userType:
+          $ref: '#/components/schemas/UserType'
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: Электронная почта (логин)
+        password:
+          type: string
+          format: password
+          description: Пароль
+
+    OfferListItem:
+      type: object
+      description: Предложение в списке (краткая информация)
+      properties:
+        id:
+          type: string
+          description: Идентификатор предложения
+        title:
+          type: string
+          minLength: 10
+          maxLength: 100
+          description: Наименование
+        price:
+          type: number
+          minimum: 100
+          maximum: 100000
+          description: Стоимость аренды
+        housingType:
+          $ref: '#/components/schemas/HousingType'
+        isFavorite:
+          type: boolean
+          description: Флаг принадлежности к избранным предложениям
+        publicationDate:
+          type: string
+          format: date-time
+          description: Дата публикации предложения
+        city:
+          $ref: '#/components/schemas/City'
+        previewImage:
+          type: string
+          format: uri
+          description: Ссылка на превью изображения
+        isPremium:
+          type: boolean
+          description: Флаг премиальности предложения
+        rating:
+          type: number
+          minimum: 1
+          maximum: 5
+          format: float
+          description: Рейтинг (от 1 до 5, допускается 1 знак после запятой)
+        commentCount:
+          type: integer
+          minimum: 0
+          description: Количество комментариев
+      required:
+        - id
+        - title
+        - price
+        - housingType
+        - isFavorite
+        - publicationDate
+        - city
+        - previewImage
+        - isPremium
+        - rating
+        - commentCount
+
+    OfferDetail:
+      type: object
+      description: Детальная информация о предложении
+      allOf:
+        - $ref: '#/components/schemas/OfferListItem'
+        - type: object
+          properties:
+            description:
+              type: string
+              minLength: 20
+              maxLength: 1024
+              description: Описание предложения
+            images:
+              type: array
+              items:
+                type: string
+                format: uri
+              minItems: 6
+              maxItems: 6
+              description: Список ссылок на фотографии жилья (всегда 6 фотографий)
+            roomCount:
+              type: integer
+              minimum: 1
+              maximum: 8
+              description: Количество комнат
+            guestCount:
+              type: integer
+              minimum: 1
+              maximum: 10
+              description: Количество гостей
+            amenities:
+              type: array
+              items:
+                $ref: '#/components/schemas/Amenity'
+              minItems: 1
+              description: Список удобств
+            author:
+              $ref: '#/components/schemas/User'
+            coordinates:
+              $ref: '#/components/schemas/CityCoordinates'
+          required:
+            - description
+            - images
+            - roomCount
+            - guestCount
+            - amenities
+            - author
+            - coordinates
+
+    CreateOfferRequest:
+      type: object
+      required:
+        - title
+        - description
+        - city
+        - previewImage
+        - images
+        - isPremium
+        - rating
+        - housingType
+        - roomCount
+        - guestCount
+        - price
+        - amenities
+        - coordinates
+      properties:
+        title:
+          type: string
+          minLength: 10
+          maxLength: 100
+          description: Наименование
+        description:
+          type: string
+          minLength: 20
+          maxLength: 1024
+          description: Описание предложения
+        city:
+          $ref: '#/components/schemas/City'
+        previewImage:
+          type: string
+          format: uri
+          description: Ссылка на превью изображения
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+          minItems: 6
+          maxItems: 6
+          description: Список ссылок на фотографии жилья (всегда 6 фотографий)
+        isPremium:
+          type: boolean
+          description: Флаг премиальности предложения
+        rating:
+          type: number
+          minimum: 1
+          maximum: 5
+          format: float
+          description: Рейтинг (от 1 до 5, допускается 1 знак после запятой)
+        housingType:
+          $ref: '#/components/schemas/HousingType'
+        roomCount:
+          type: integer
+          minimum: 1
+          maximum: 8
+          description: Количество комнат
+        guestCount:
+          type: integer
+          minimum: 1
+          maximum: 10
+          description: Количество гостей
+        price:
+          type: number
+          minimum: 100
+          maximum: 100000
+          description: Стоимость аренды
+        amenities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Amenity'
+          minItems: 1
+          description: Список удобств
+        coordinates:
+          $ref: '#/components/schemas/CityCoordinates'
+
+    UpdateOfferRequest:
+      type: object
+      description: Данные для обновления предложения (все поля необязательны)
+      properties:
+        title:
+          type: string
+          minLength: 10
+          maxLength: 100
+          description: Наименование
+        description:
+          type: string
+          minLength: 20
+          maxLength: 1024
+          description: Описание предложения
+        city:
+          $ref: '#/components/schemas/City'
+        previewImage:
+          type: string
+          format: uri
+          description: Ссылка на превью изображения
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+          minItems: 6
+          maxItems: 6
+          description: Список ссылок на фотографии жилья (всегда 6 фотографий)
+        isPremium:
+          type: boolean
+          description: Флаг премиальности предложения
+        rating:
+          type: number
+          minimum: 1
+          maximum: 5
+          format: float
+          description: Рейтинг (от 1 до 5, допускается 1 знак после запятой)
+        housingType:
+          $ref: '#/components/schemas/HousingType'
+        roomCount:
+          type: integer
+          minimum: 1
+          maximum: 8
+          description: Количество комнат
+        guestCount:
+          type: integer
+          minimum: 1
+          maximum: 10
+          description: Количество гостей
+        price:
+          type: number
+          minimum: 100
+          maximum: 100000
+          description: Стоимость аренды
+        amenities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Amenity'
+          minItems: 1
+          description: Список удобств
+        coordinates:
+          $ref: '#/components/schemas/CityCoordinates'
+
+    Comment:
+      type: object
+      description: Комментарий к предложению
+      properties:
+        id:
+          type: string
+          description: Идентификатор комментария
+        text:
+          type: string
+          minLength: 5
+          maxLength: 1024
+          description: Текст комментария
+        publicationDate:
+          type: string
+          format: date-time
+          description: Дата публикации комментария
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Рейтинг (от 1 до 5)
+        author:
+          $ref: '#/components/schemas/User'
+      required:
+        - id
+        - text
+        - publicationDate
+        - rating
+        - author
+
+    CreateCommentRequest:
+      type: object
+      required:
+        - text
+        - rating
+      properties:
+        text:
+          type: string
+          minLength: 5
+          maxLength: 1024
+          description: Текст комментария
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Рейтинг (от 1 до 5)
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Описание ошибки
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Поле, в котором произошла ошибка
+              message:
+                type: string
+                description: Сообщение об ошибке
+      required:
+        - error
+
+  responses:
+    BadRequest:
+      description: Некорректный запрос
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Требуется аутентификация
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: Доступ запрещен
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Внутренняя ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
