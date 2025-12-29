@@ -37,4 +37,24 @@ export class UserController extends Controller {
     // TODO: Реализовать логику выхода
     this.noContent(res);
   });
+
+  public uploadAvatar = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const userId = req.params.userId;
+    const file = req.file as Express.Multer.File | undefined;
+
+    if (!file) {
+      this.badRequest(res, 'File is required');
+      return;
+    }
+
+    const avatarPath = `/uploads/${file.filename}`;
+    const updated = await this.userService.update(userId, { avatar: avatarPath });
+
+    if (!updated) {
+      this.notFound(res, 'User not found');
+      return;
+    }
+
+    this.ok(res, { data: updated.toObject() });
+  });
 }
