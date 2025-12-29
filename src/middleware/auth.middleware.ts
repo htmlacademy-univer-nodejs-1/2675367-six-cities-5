@@ -20,7 +20,7 @@ export class AuthMiddleware {
       const secret = new TextEncoder().encode(config.get('security.jwtSecret'));
       const { payload } = await jwtVerify(token, secret);
       req.user = { id: payload.userId as string };
-      next();
+      return next();
     } catch (error) {
       throw new HttpError(StatusCodes.UNAUTHORIZED, 'Invalid token');
     }

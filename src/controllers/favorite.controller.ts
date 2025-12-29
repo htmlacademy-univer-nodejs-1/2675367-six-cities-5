@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import { Controller } from '../core/controller/controller.js';
 import { OfferService } from '../services/index.js';
