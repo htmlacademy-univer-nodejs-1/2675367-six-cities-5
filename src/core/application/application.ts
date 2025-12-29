@@ -17,6 +17,19 @@ export class Application {
 
   public initMiddleware(): void {
     this.expressApp.use(express.json());
+
+    try {
+      const uploadDir = Config.UPLOAD_DIR;
+      if (uploadDir) {
+        const fs = require('fs');
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        this.expressApp.use('/uploads', express.static(uploadDir));
+      }
+    } catch (err) {
+      // ignore errors creating/serving upload dir
+    }
   }
 
   public registerMiddleware(middleware: express.RequestHandler): void {
