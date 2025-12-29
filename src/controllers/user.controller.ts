@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
+import { StatusCodes } from 'http-status-codes';
 import { Controller } from '../core/controller/controller.js';
-import { CreateUserDto } from '../dto/index.js';
+import { CreateUserDto, LoginDto } from '../dto/index.js';
 import { UserService } from '../services/index.js';
+import { AuthRequest } from '../middleware/index.js';
 import { plainToInstance } from 'class-transformer';
 
 export class UserController extends Controller {
@@ -17,24 +19,40 @@ export class UserController extends Controller {
   });
 
   public login = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    // TODO: Реализовать логику аутентификации
-    // Пока возвращаем заглушку
+    const dto = plainToInstance(LoginDto, req.body);
+    const user = await this.userService.findByEmail(dto.email);
+    
+    if (!user) {
+      this.notFound(res, { error: 'User not found' });
+      return;
+    }
+
+    // TODO: Add proper password verification
+    const token = await this.userService.generateToken(user.id!);
     this.ok(res, {
-      token: 'mock-token',
-      user: { id: '1', name: 'Test', email: 'test@test.com', userType: 'ordinary' },
+      token,
+      user: user.toObject(),
     });
   });
 
-  public checkAuth = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    // TODO: Реализовать проверку токена
-    // Пока возвращаем заглушку
-    this.ok(res, {
-      data: { id: '1', name: 'Test', email: 'test@test.com', userType: 'ordinary' },
-    });
+  public checkAuth = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
+    const userId = req.user?.id;
+    if (!userId) {
+      this.unauthorized(res, 'Not authenticated');
+      return;
+    }
+
+    const user = await this.userService.findById(userId);
+    if (!user) {
+      this.notFound(res, { error: 'User not found' });
+      return;
+    }
+
+    this.ok(res, { data: user.toObject() });
   });
 
-  public logout = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    // TODO: Реализовать логику выхода
+  public logout = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
+    // Logout is stateless with JWT, just return 204 No Content
     this.noContent(res);
   });
 }

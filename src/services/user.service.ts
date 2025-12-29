@@ -1,6 +1,8 @@
+import { SignJWT } from 'jose';
 import { UserEntity } from '../entities/user.entity.js';
 import { CreateUserDto, UpdateUserDto } from '../dto/index.js';
 import { IUserModel } from '../models/index.js';
+import { Config } from '../config/config.js';
 
 export class UserService {
   constructor(private readonly userModel: IUserModel) {}
@@ -23,6 +25,17 @@ export class UserService {
 
   public async delete(id: string): Promise<void> {
     return this.userModel.delete(id);
+  }
+
+  public async generateToken(userId: string): Promise<string> {
+    const secret = new TextEncoder().encode(Config.SALT);
+    const token = await new SignJWT({ sub: userId })
+      .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+      .setIssuedAt()
+      .setExpirationTime('24h')
+      .sign(secret);
+    
+    return token;
   }
 }
 

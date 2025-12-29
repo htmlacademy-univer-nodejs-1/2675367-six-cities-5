@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { CommentController } from '../controllers/index.js';
-import { ValidateObjectIdMiddleware, ValidateDtoMiddleware } from '../middleware/index.js';
+import { ValidateObjectIdMiddleware, ValidateDtoMiddleware, AuthMiddleware } from '../middleware/index.js';
 import { CreateCommentDto } from '../dto/index.js';
 
 export function createCommentRouter(commentController: CommentController): Router {
@@ -8,6 +8,7 @@ export function createCommentRouter(commentController: CommentController): Route
 
   const validateOfferId = new ValidateObjectIdMiddleware('offerId');
   const validateCreateComment = new ValidateDtoMiddleware(CreateCommentDto);
+  const authMiddleware = new AuthMiddleware();
 
   router.get(
     '/:offerId/comments',
@@ -18,6 +19,7 @@ export function createCommentRouter(commentController: CommentController): Route
   router.post(
     '/:offerId/comments',
     validateOfferId.execute.bind(validateOfferId),
+    authMiddleware.execute.bind(authMiddleware),
     validateCreateComment.execute.bind(validateCreateComment),
     commentController.create
   );
