@@ -1,4 +1,4 @@
-import { IsString, MinLength, MaxLength, IsEmail, IsOptional, IsEnum, Matches } from 'class-validator';
+import { IsString, MinLength, MaxLength, IsEmail, IsOptional, IsEnum } from 'class-validator';
 import { UserType } from '../types/index.js';
 
 export class CreateUserDto {

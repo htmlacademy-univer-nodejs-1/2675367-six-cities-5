@@ -14,7 +14,7 @@ export interface AuthRequest extends Request {
 export class AuthMiddleware implements IMiddleware {
   public async execute(req: AuthRequest, _res: Response, next: NextFunction): Promise<void> {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       throw new HttpError(StatusCodes.UNAUTHORIZED, 'Missing or invalid authorization header');
     }
@@ -24,12 +24,12 @@ export class AuthMiddleware implements IMiddleware {
     try {
       const secret = new TextEncoder().encode(Config.SALT);
       const { payload } = await jwtVerify(token, secret);
-      
+
       req.user = {
         id: payload.sub as string,
       };
-      
-      next();
+
+      return next();
     } catch (_error) {
       throw new HttpError(StatusCodes.UNAUTHORIZED, 'Invalid token');
     }

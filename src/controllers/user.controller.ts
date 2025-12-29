@@ -1,14 +1,10 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
-import { StatusCodes } from 'http-status-codes';
 import { Controller } from '../core/controller/controller.js';
 import { CreateUserDto, LoginDto } from '../dto/index.js';
 import { UserService } from '../services/index.js';
 import { AuthRequest } from '../middleware/index.js';
 import { plainToInstance } from 'class-transformer';
-import { SignJWT } from 'jose';
-import { config } from '../core/config/config.js';
-import { AuthRequest } from '../middleware/index.js';
 
 export class UserController extends Controller {
   constructor(private readonly userService: UserService) {
@@ -19,27 +15,21 @@ export class UserController extends Controller {
     const dto = plainToInstance(CreateUserDto, req.body);
     const user = await this.userService.create(dto);
 
-    const secret = new TextEncoder().encode(config.get('security.jwtSecret'));
-    const token = await new SignJWT({ userId: user.id })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setExpirationTime('24h')
-      .sign(secret);
-
+    const token = await this.userService.generateToken(user.id as string);
     this.created(res, { token, data: user.toObject() });
   });
 
   public login = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const dto = plainToInstance(LoginDto, req.body);
     const user = await this.userService.findByEmail(dto.email);
-    
+
     if (!user) {
       this.notFound(res, { error: 'User not found' });
       return;
     }
 
     // TODO: Add proper password verification
-    const token = await this.userService.generateToken(user.id!);
+    const token = await this.userService.generateToken(user.id as string);
     this.ok(res, {
       token,
       user: user.toObject(),

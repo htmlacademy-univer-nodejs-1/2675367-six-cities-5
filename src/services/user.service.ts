@@ -34,7 +34,7 @@ export class UserService {
       .setIssuedAt()
       .setExpirationTime('24h')
       .sign(secret);
-    
+
     return token;
   }
 }
