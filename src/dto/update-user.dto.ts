@@ -7,4 +7,3 @@ export class UpdateUserDto {
   public password?: string;
   public userType?: UserType;
 }
-

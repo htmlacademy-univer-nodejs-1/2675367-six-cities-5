@@ -2,8 +2,19 @@ import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { IExceptionFilter } from './exception-filter.interface.js';
 
+export class HttpError extends Error {
+  constructor(
+    public statusCode: number,
+    message: string,
+    public details?: unknown
+  ) {
+    super(message);
+    this.name = 'HttpError';
+  }
+}
+
 export class ExceptionFilter implements IExceptionFilter {
-  public catch(error: Error, req: Request, res: Response, next: NextFunction): void {
+  public catch(error: Error, req: Request, res: Response, _next: NextFunction): void {
     // Логирование ошибок
     console.error(`[Exception Filter] ${error.message}`);
     if (error.stack) {
@@ -24,15 +35,3 @@ export class ExceptionFilter implements IExceptionFilter {
     }
   }
 }
-
-export class HttpError extends Error {
-  constructor(
-    public statusCode: number,
-    message: string,
-    public details?: unknown
-  ) {
-    super(message);
-    this.name = 'HttpError';
-  }
-}
-

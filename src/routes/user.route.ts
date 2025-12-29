@@ -11,4 +11,3 @@ export function createUserRouter(userController: UserController): Router {
 
   return router;
 }
-

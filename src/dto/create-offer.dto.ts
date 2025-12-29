@@ -15,4 +15,3 @@ export class CreateOfferDto {
   public amenities: Amenity[];
   public coordinates: Coordinates;
 }
-

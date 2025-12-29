@@ -1,5 +1,3 @@
-import { UserEntity } from './user.entity.js';
-
 export class CommentEntity {
   public id?: string;
   public text: string;

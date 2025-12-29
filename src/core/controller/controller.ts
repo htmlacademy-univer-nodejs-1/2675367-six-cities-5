@@ -42,4 +42,3 @@ export abstract class Controller {
     this.send(res, StatusCodes.INTERNAL_SERVER_ERROR, data);
   }
 }
-
