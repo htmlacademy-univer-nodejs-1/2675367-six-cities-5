@@ -4,15 +4,17 @@ import { Controller } from '../core/controller/controller.js';
 import { CreateOfferDto, UpdateOfferDto } from '../dto/index.js';
 import { OfferService } from '../services/index.js';
 import { plainToInstance } from 'class-transformer';
+import { AuthRequest } from '../middleware/index.js';
 
 export class OfferController extends Controller {
   constructor(private readonly offerService: OfferService) {
     super();
   }
 
-  public index = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  public index = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
-    const offers = await this.offerService.find(limit);
+    const userId = req.user?.id;
+    const offers = await this.offerService.find(limit, userId);
     this.ok(res, {
       data: offers.map((offer) => offer.toObject()),
       total: offers.length,
@@ -27,9 +29,10 @@ export class OfferController extends Controller {
     this.created(res, { data: offer.toObject() });
   });
 
-  public show = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  public show = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const { offerId } = req.params;
-    const offer = await this.offerService.findById(offerId);
+    const userId = req.user?.id;
+    const offer = await this.offerService.findById(offerId, userId);
     if (!offer) {
       this.notFound(res, { error: `Offer with id ${offerId} not found` });
       return;

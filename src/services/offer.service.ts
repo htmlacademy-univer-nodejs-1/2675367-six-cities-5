@@ -13,17 +13,33 @@ export class OfferService {
     return this.offerModel.create(dto, authorId);
   }
 
-  public async findById(id: string): Promise<OfferEntity | null> {
+  public async findById(id: string, userId?: string): Promise<OfferEntity | null> {
     const offer = await this.offerModel.findById(id);
     if (offer) {
-      await this.updateCommentCount(offer.id!);
-      return this.offerModel.findById(id);
+      await this.updateCommentCount(offer.id);
+      if (userId) {
+        offer.isFavorite = await this.isFavorite(offer.id, userId);
+      } else {
+        offer.isFavorite = false;
+      }
+      return offer;
     }
     return null;
   }
 
-  public async find(limit?: number): Promise<OfferEntity[]> {
-    return this.offerModel.find(limit);
+  public async find(limit?: number, userId?: string): Promise<OfferEntity[]> {
+    const offers = await this.offerModel.find(limit);
+    if (userId) {
+      // Set isFavorite for each offer
+      for (const offer of offers) {
+        offer.isFavorite = await this.isFavorite(offer.id, userId);
+      }
+    } else {
+      for (const offer of offers) {
+        offer.isFavorite = false;
+      }
+    }
+    return offers;
   }
 
   public async findPremiumByCity(city: City, limit = 3): Promise<OfferEntity[]> {
