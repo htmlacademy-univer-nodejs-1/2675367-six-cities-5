@@ -62,4 +62,3 @@ export class OfferController extends Controller {
     });
   });
 }
-

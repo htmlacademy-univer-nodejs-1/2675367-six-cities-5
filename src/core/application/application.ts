@@ -23,10 +23,6 @@ export class Application {
     this.expressApp.use(middleware);
   }
 
-  public registerRoutes(router: express.Router): void {
-    this.expressApp.use(router);
-  }
-
   public initExceptionFilters(): void {
     this.expressApp.use(
       (error: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -48,4 +44,3 @@ export class Application {
     });
   }
 }
-

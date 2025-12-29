@@ -1,5 +1,4 @@
 import { City, HousingType, Amenity, Coordinates } from '../types/index.js';
-import { UserEntity } from './user.entity.js';
 
 export class OfferEntity {
   public id?: string;

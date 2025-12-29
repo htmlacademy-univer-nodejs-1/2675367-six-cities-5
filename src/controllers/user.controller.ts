@@ -38,4 +38,3 @@ export class UserController extends Controller {
     this.noContent(res);
   });
 }
-

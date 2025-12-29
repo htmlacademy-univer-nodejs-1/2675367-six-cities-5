@@ -7,4 +7,3 @@ export class CreateUserDto {
   public password: string;
   public userType: UserType;
 }
-

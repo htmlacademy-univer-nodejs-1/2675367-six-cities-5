@@ -33,4 +33,3 @@ export class FavoriteController extends Controller {
     this.noContent(res);
   });
 }
-
