@@ -70,12 +70,8 @@ export class UserController extends Controller {
     this.noContent(res);
   });
 
-  public uploadAvatar = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
-    const userId = req.user?.id;
-    if (!userId) {
-      this.unauthorized(res, 'Not authenticated');
-      return;
-    }
+  public uploadAvatar = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const userId = req.params.userId;
     const file = req.file as Express.Multer.File | undefined;
 
     if (!file) {

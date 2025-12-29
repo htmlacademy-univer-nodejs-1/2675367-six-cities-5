@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { Controller } from '../core/controller/controller.js';
 import { CreateOfferDto, UpdateOfferDto } from '../dto/index.js';
 import { OfferService } from '../services/index.js';
+import { City } from '../types/index.js';
 import { plainToInstance } from 'class-transformer';
 import { AuthRequest } from '../middleware/index.js';
 
@@ -59,7 +60,7 @@ export class OfferController extends Controller {
 
   public getPremiumByCity = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { city } = req.params;
-    const offers = await this.offerService.findPremiumByCity(city as any, 3);
+    const offers = await this.offerService.findPremiumByCity(city as City, 3);
     this.ok(res, {
       data: offers.map((offer) => offer.toObject()),
     });
