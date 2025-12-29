@@ -1,5 +1,5 @@
 import express, { Express, Router } from 'express';
-import fs from 'node:fs';
+import cors from 'cors';
 import { Config } from '../../config/config.js';
 import { IExceptionFilter } from '../exception-filter/index.js';
 
@@ -17,6 +17,7 @@ export class Application {
   }
 
   public initMiddleware(): void {
+    this.expressApp.use(cors());
     this.expressApp.use(express.json());
 
     try {

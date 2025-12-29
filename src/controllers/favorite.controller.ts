@@ -29,7 +29,7 @@ export class FavoriteController extends Controller {
       return;
     }
     await this.offerService.addToFavorites(offerId, userId);
-    this.created(res, { message: 'Предложение добавлено в избранное' });
+    this.created(res, { message: 'Offer added to favorites' });
   });
 
   public delete = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {

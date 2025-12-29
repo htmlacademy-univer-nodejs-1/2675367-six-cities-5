@@ -95,5 +95,10 @@ export class OfferService {
   public async isFavorite(offerId: string, userId: string): Promise<boolean> {
     return this.offerModel.isFavorite(offerId, userId);
   }
+
+  public async getAuthorId(offerId: string): Promise<string | null> {
+    const offer = await this.offerModel.findById(offerId);
+    return offer?.authorId ?? null;
+  }
 }
 

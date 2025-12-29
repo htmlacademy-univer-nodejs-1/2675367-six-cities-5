@@ -22,10 +22,13 @@ export class OfferController extends Controller {
     });
   });
 
-  public create = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  public create = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
+    const authorId = req.user?.id;
+    if (!authorId) {
+      this.unauthorized(res, 'Not authenticated');
+      return;
+    }
     const dto = plainToInstance(CreateOfferDto, req.body);
-    // TODO: Получить authorId из токена
-    const authorId = 'mock-author-id';
     const offer = await this.offerService.create(dto, authorId);
     this.created(res, { data: offer.toObject() });
   });
@@ -41,7 +44,7 @@ export class OfferController extends Controller {
     this.ok(res, { data: offer.toObject() });
   });
 
-  public update = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  public update = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const { offerId } = req.params;
     const dto = plainToInstance(UpdateOfferDto, req.body);
     const offer = await this.offerService.update(offerId, dto);
@@ -52,7 +55,7 @@ export class OfferController extends Controller {
     this.ok(res, { data: offer.toObject() });
   });
 
-  public delete = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  public delete = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const { offerId } = req.params;
     await this.offerService.delete(offerId);
     this.noContent(res);

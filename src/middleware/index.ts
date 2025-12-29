@@ -3,4 +3,5 @@ export { ValidateDtoMiddleware } from './validate-dto.middleware.js';
 export { UploadMiddleware } from './upload.middleware.js';
 export { ValidateExistsMiddleware } from './validate-exists.middleware.js';
 export { AuthMiddleware, type AuthRequest } from './auth.middleware.js';
+export { CheckOwnerMiddleware, type OfferOwnerProvider } from './check-owner.middleware.js';
 

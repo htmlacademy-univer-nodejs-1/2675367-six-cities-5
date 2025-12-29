@@ -27,7 +27,7 @@ async function bootstrap(): Promise<void> {
 
   // Создаем роутеры
   const userRouter = createUserRouter(userController);
-  const offerRouter = createOfferRouter(offerController);
+  const offerRouter = createOfferRouter(offerController, { getAuthorId: (id) => offerService.getAuthorId(id) });
   const favoriteRouter = createFavoriteRouter(favoriteController);
   const commentController = new CommentController(commentService);
   const commentRouter = createCommentRouter(commentController);
