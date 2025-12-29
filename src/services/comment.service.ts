@@ -56,6 +56,7 @@ export class CommentService {
       await this.offerService.updateRating(offerId);
     }
   }
+
   public async countByOfferId(offerId: string): Promise<number> {
     return this.commentModel.countByOfferId(offerId);
   }
