@@ -26,7 +26,7 @@ export class OfferService {
     return this.offerModel.find(limit);
   }
 
-  public async findPremiumByCity(city: City, limit: number = 3): Promise<OfferEntity[]> {
+  public async findPremiumByCity(city: City, limit = 3): Promise<OfferEntity[]> {
     return this.offerModel.findPremiumByCity(city, limit);
   }
 

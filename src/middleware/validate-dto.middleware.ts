@@ -7,7 +7,7 @@ import { IMiddleware } from '../core/middleware/index.js';
 import { HttpError } from '../core/exception-filter/index.js';
 
 export class ValidateDtoMiddleware implements IMiddleware {
-  constructor(private dtoClass: new (...args: any[]) => object) {}
+  constructor(private dtoClass: new (...args: unknown[]) => object) {}
 
   public execute = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const dto = plainToInstance(this.dtoClass, req.body);

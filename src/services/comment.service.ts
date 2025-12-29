@@ -36,16 +36,16 @@ export class CommentService {
     return this.commentModel.findById(id);
   }
 
-  public async findByOfferId(offerId: string, limit: number = 50): Promise<CommentEntity[]> {
+  public async findByOfferId(offerId: string, limit = 50): Promise<CommentEntity[]> {
     return this.commentModel.findByOfferId(offerId, limit);
   }
 
   public async delete(id: string): Promise<void> {
     const comment = await this.commentModel.findById(id);
-    
+
     if (comment) {
       const offerId = comment.offerId;
-      
+
       // Удаляем комментарий
       await this.commentModel.delete(id);
 
@@ -56,6 +56,7 @@ export class CommentService {
       await this.offerService.updateRating(offerId);
     }
   }
+
   public async countByOfferId(offerId: string): Promise<number> {
     return this.commentModel.countByOfferId(offerId);
   }
