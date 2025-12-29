@@ -43,6 +43,13 @@ export const configSchema = convict({
       env: 'SALT',
       default: '',
       sensitive: true
+    },
+    jwtSecret: {
+      doc: 'Secret for JWT signing',
+      format: String,
+      env: 'JWT_SECRET',
+      default: 'your-secret-key',
+      sensitive: true
     }
   }
 });

@@ -12,12 +12,5 @@ coverage
 .env
 .env.local
 .env*.local
-# Documentation and reports
-FINAL_QA_REPORT.md
-IMPLEMENTATION_SUMMARY.md
-FINAL_CHECK_REPORT.md
-COMPLIANCE_VERIFICATION.md
-QUICK_START.md
-TESTING.md
-test.rest
-test-routes.sh
+# Uploaded files
+/uploads/

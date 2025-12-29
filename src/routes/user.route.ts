@@ -1,18 +1,19 @@
 import { Router } from 'express';
 import { UserController } from '../controllers/index.js';
-import { ValidateDtoMiddleware, AuthMiddleware } from '../middleware/index.js';
-import { CreateUserDto, LoginDto } from '../dto/index.js';
+import { ValidateObjectIdMiddleware, UploadMiddleware } from '../middleware/index.js';
+import { Config } from '../config/config.js';
 
 export function createUserRouter(userController: UserController): Router {
   const router = Router();
-  const authMiddleware = new AuthMiddleware();
-  const validateCreateUser = new ValidateDtoMiddleware(CreateUserDto);
-  const validateLogin = new ValidateDtoMiddleware(LoginDto);
+  const uploadMiddleware = new UploadMiddleware(Config.UPLOAD_DIR);
+  const validateObjectId = new ValidateObjectIdMiddleware('userId');
 
-  router.post('/register', validateCreateUser.execute.bind(validateCreateUser), userController.register);
-  router.post('/login', validateLogin.execute.bind(validateLogin), userController.login);
+  router.post('/register', userController.register);
+  router.post('/login', userController.login);
   router.get('/login', authMiddleware.execute.bind(authMiddleware), userController.checkAuth);
-  router.delete('/logout', authMiddleware.execute.bind(authMiddleware), userController.logout);
+  router.delete('/logout', userController.logout);
+
+  router.post('/:userId/avatar', validateObjectId.execute.bind(validateObjectId), uploadMiddleware.single('avatar'), userController.uploadAvatar);
 
   return router;
 }

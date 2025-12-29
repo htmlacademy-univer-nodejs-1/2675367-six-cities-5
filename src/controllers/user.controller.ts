@@ -6,6 +6,9 @@ import { CreateUserDto, LoginDto } from '../dto/index.js';
 import { UserService } from '../services/index.js';
 import { AuthRequest } from '../middleware/index.js';
 import { plainToInstance } from 'class-transformer';
+import { SignJWT } from 'jose';
+import { config } from '../core/config/config.js';
+import { AuthRequest } from '../middleware/index.js';
 
 export class UserController extends Controller {
   constructor(private readonly userService: UserService) {
@@ -15,7 +18,15 @@ export class UserController extends Controller {
   public register = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const dto = plainToInstance(CreateUserDto, req.body);
     const user = await this.userService.create(dto);
-    this.created(res, { data: user.toObject() });
+
+    const secret = new TextEncoder().encode(config.get('security.jwtSecret'));
+    const token = await new SignJWT({ userId: user.id })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('24h')
+      .sign(secret);
+
+    this.created(res, { token, data: user.toObject() });
   });
 
   public login = asyncHandler(async (req: Request, res: Response): Promise<void> => {
@@ -54,5 +65,25 @@ export class UserController extends Controller {
   public logout = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     // Logout is stateless with JWT, just return 204 No Content
     this.noContent(res);
+  });
+
+  public uploadAvatar = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const userId = req.params.userId;
+    const file = req.file as Express.Multer.File | undefined;
+
+    if (!file) {
+      this.badRequest(res, 'File is required');
+      return;
+    }
+
+    const avatarPath = `/uploads/${file.filename}`;
+    const updated = await this.userService.update(userId, { avatar: avatarPath });
+
+    if (!updated) {
+      this.notFound(res, 'User not found');
+      return;
+    }
+
+    this.ok(res, { data: updated.toObject() });
   });
 }
