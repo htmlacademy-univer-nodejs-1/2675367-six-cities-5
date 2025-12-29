@@ -1,4 +1,5 @@
 import express, { Express, Router } from 'express';
+import fs from 'node:fs';
 import { Config } from '../../config/config.js';
 import { IExceptionFilter } from '../exception-filter/index.js';
 
@@ -21,7 +22,6 @@ export class Application {
     try {
       const uploadDir = Config.UPLOAD_DIR;
       if (uploadDir) {
-        const fs = require('fs');
         if (!fs.existsSync(uploadDir)) {
           fs.mkdirSync(uploadDir, { recursive: true });
         }

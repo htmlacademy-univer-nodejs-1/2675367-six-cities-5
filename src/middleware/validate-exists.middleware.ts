@@ -4,7 +4,7 @@ import { HttpError } from '../core/exception-filter/index.js';
 
 type ExistenceChecker = {
   exists?: (id: string) => Promise<boolean> | boolean;
-  findById?: (id: string) => Promise<any> | any;
+  findById?: (id: string) => Promise<unknown> | unknown;
 };
 
 export class ValidateExistsMiddleware {

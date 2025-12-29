@@ -16,7 +16,7 @@ export class OfferService {
   public async findById(id: string): Promise<OfferEntity | null> {
     const offer = await this.offerModel.findById(id);
     if (offer) {
-      await this.updateCommentCount(offer.id!);
+      await this.updateCommentCount(offer.id);
       return this.offerModel.findById(id);
     }
     return null;
