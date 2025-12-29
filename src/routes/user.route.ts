@@ -10,7 +10,7 @@ export function createUserRouter(userController: UserController): Router {
 
   router.post('/register', userController.register);
   router.post('/login', userController.login);
-  router.get('/login', userController.checkAuth);
+  router.get('/login', authMiddleware.execute.bind(authMiddleware), userController.checkAuth);
   router.delete('/logout', userController.logout);
 
   router.post('/:userId/avatar', validateObjectId.execute.bind(validateObjectId), uploadMiddleware.single('avatar'), userController.uploadAvatar);
